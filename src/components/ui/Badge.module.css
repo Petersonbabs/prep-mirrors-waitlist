@@ -1,0 +1,38 @@
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    /* Ensure consistent box model */
+}
+
+/* Status variants */
+.success {
+    background: var(--secondary-500);
+    color: var(--black);
+}
+
+.warning {
+    background: var(--accent-500);
+    color: var(--black);
+}
+
+.info {
+    background: var(--primary-500);
+    color: var(--white);
+}
+
+.error {
+    background: var(--error-500);
+    color: var(--white);
+}
+
+.default {
+    background: var(--neutral-200);
+    color: var(--neutral-800);
+    border: 1px solid var(--neutral-300);
+}
