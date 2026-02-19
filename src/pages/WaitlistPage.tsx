@@ -12,6 +12,7 @@ export const WaitlistPage: React.FC = () => {
         e.preventDefault()
         if (email) {
             setSubmitted(true)
+            
             // TODO: Integrate with backend
         }
     }
