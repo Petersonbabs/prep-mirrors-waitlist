@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+
 :root {
   /* Brand Colors - Dark Mode */
   --primary-500: #818CF8;
@@ -13,7 +16,7 @@
   --secondary-400: #6EE7B7;
   --secondary-300: #A7F3D0;
   --secondary-200: #D1FAE5;
-  
+
   --accent-500: #FBBF24;
   --accent-600: #F59E0B;
   --accent-400: #FCD34D;
@@ -65,7 +68,7 @@
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
-  
+
   /* Glow effects */
   --glow-primary: 0 0 20px rgba(129, 140, 248, 0.3);
   --glow-secondary: 0 0 20px rgba(52, 211, 153, 0.3);
@@ -83,7 +86,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-display);
   font-weight: 700;
   margin: 0 0 var(--space-md) 0;

@@ -10,9 +10,6 @@ export interface WaitlistEntry {
 }
 
 export const addToWaitlist = async (entry: WaitlistEntry) => {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
-    console.log(supabaseUrl, supabaseAnonKey);
     const { data, error } = await supabase
         .from('waitlist')
         .insert([
@@ -55,4 +52,26 @@ export const updateWaitlistEntry = async (id: string | number, entry: Partial<Wa
     }
 
     return data?.[0]
+}
+
+export const searchJobTitles = async (query: string) => {
+    if (!query || query.length < 2) return []
+
+    // Diagnostic log
+    console.log('Searching for:', query)
+
+    const { data, error, status, statusText } = await supabase
+        .from('job_titles')
+        .select('name, slug')
+        .ilike('name', `%${query}%`)
+        .limit(8)
+
+    console.log('Search Results:', { data, error, status, statusText })
+
+    if (error) {
+        console.error('Error searching job titles:', error)
+        throw error
+    }
+
+    return data
 }
