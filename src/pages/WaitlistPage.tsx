@@ -36,6 +36,16 @@ export const WaitlistPage: React.FC = () => {
         setLoading(true)
         try {
             const data = await addToWaitlist({ email })
+            toast("You have been added to the waitlist! You will receive an email when PrepMirrors is ready.", {
+                icon: '🎉',
+                duration: 5000,
+                style: {
+                    background: '#000000',
+                    color: 'var(--primary-50)',
+                    border: '2px solid #fff',
+                    boxShadow: '1px 1px 0px 0px #58585804'
+                }
+            })
             if (data?.id) {
                 setUserId(data.id)
                 setIsModalOpen(true)
@@ -115,6 +125,7 @@ export const WaitlistPage: React.FC = () => {
                                     {loading ? 'Joining...' : 'Get Early Access'}
                                 </Button>
                             </form>
+                            <p style={{ color: "var(--neutral-800)" }} className='mt-2 text-sm'>You will receive an email.</p>
                         </motion.div>
                     </motion.div>
                 </AnimatePresence>
@@ -123,7 +134,7 @@ export const WaitlistPage: React.FC = () => {
                     <div className={styles.avatars}>
                         {[1, 2, 3, 4].map(i => <div key={i} className={styles.avatar} style={{ backgroundColor: `hsl(${i * 60}, 60%, 80%)` }} />)}
                     </div>
-                    <div className={styles.proofText} style={{ color: "var(--neutral-800)" }}>Join <span className={styles.proofHighlight}>{count}</span> people waiting</div>
+                    <div className={styles.proofText} style={{ color: "var(--neutral-800)" }}>Join the <span className={styles.proofHighlight}>{count}</span> people waiting</div>
                 </motion.div>
             </motion.main>
 
