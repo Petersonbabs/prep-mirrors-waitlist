@@ -1,6 +1,8 @@
 import { supabase } from '../lib/supabase'
+import { sendWaitlistNotification, sendOnboardingNotification } from './emailService'
 
 export interface WaitlistEntry {
+    id?: string | number
     email: string
     role?: string
     level?: string
@@ -30,7 +32,14 @@ export const addToWaitlist = async (entry: WaitlistEntry) => {
         throw error
     }
 
-    return data?.[0]
+    const result = data?.[0]
+
+    // Send background notification to team
+    if (result) {
+        sendWaitlistNotification(result.email)
+    }
+
+    return result
 }
 
 export const updateWaitlistEntry = async (id: string | number, entry: Partial<WaitlistEntry>) => {
@@ -51,7 +60,14 @@ export const updateWaitlistEntry = async (id: string | number, entry: Partial<Wa
         throw error
     }
 
-    return data?.[0]
+    const result = data?.[0]
+
+    // Send background notification for onboarding completion
+    if (result) {
+        sendOnboardingNotification(result.email, result)
+    }
+
+    return result
 }
 
 export const searchJobTitles = async (query: string) => {
