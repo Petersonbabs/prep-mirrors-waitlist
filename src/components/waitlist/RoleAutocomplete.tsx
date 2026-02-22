@@ -15,8 +15,6 @@ export function RoleAutocomplete({ value, onChange, onSelect }: RoleAutocomplete
     const [loading, setLoading] = useState(false)
     const [selectedIndex, setSelectedIndex] = useState(-1)
     const containerRef = useRef<HTMLDivElement>(null)
-    console.log("value", value)
-    console.log("suggestions", suggestions)
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -33,9 +31,7 @@ export function RoleAutocomplete({ value, onChange, onSelect }: RoleAutocomplete
             if (value.length >= 2) {
                 setLoading(true)
                 try {
-                    console.log("Searching job titles...")
                     const results = await searchJobTitles(value)
-                    console.log("job titles: ", results)
                     setSuggestions(results)
                     setIsOpen(results.length > 0)
                 } catch (err) {
@@ -52,13 +48,15 @@ export function RoleAutocomplete({ value, onChange, onSelect }: RoleAutocomplete
         return () => clearTimeout(timer)
     }, [value])
 
+    const allSuggestions = value.length >= 2 ? [{ name: value, slug: 'custom' }, ...suggestions] : []
+
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'ArrowDown') {
-            setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : prev))
+            setSelectedIndex(prev => (prev < allSuggestions.length - 1 ? prev + 1 : prev))
         } else if (e.key === 'ArrowUp') {
             setSelectedIndex(prev => (prev > 0 ? prev - 1 : prev))
         } else if (e.key === 'Enter' && selectedIndex >= 0) {
-            handleSelect(suggestions[selectedIndex])
+            handleSelect(allSuggestions[selectedIndex])
         }
     }
 
@@ -78,7 +76,10 @@ export function RoleAutocomplete({ value, onChange, onSelect }: RoleAutocomplete
                     id="role"
                     type="text"
                     value={value}
-                    onChange={(e) => onChange(e.target.value)}
+                    onChange={(e) => {
+                        onChange(e.target.value)
+                        setSelectedIndex(-1) // Reset selection when typing
+                    }}
                     onKeyDown={handleKeyDown}
                     onFocus={() => value.length >= 2 && setIsOpen(true)}
                     placeholder="e.g., Software Engineer, Product Manager"
@@ -95,21 +96,28 @@ export function RoleAutocomplete({ value, onChange, onSelect }: RoleAutocomplete
             </div>
 
             <AnimatePresence>
-                {isOpen && (
+                {isOpen && allSuggestions.length > 0 && (
                     <motion.ul
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="absolute z-50 w-full mt-2 bg-white border border-neutral-200 rounded-lg shadow-xl overflow-hidden"
+                        className="absolute z-50 w-full mt-2 bg-white border border-neutral-200 rounded-lg shadow-xl overflow-hidden max-h-60 overflow-y-auto"
                     >
-                        {suggestions.map((suggestion, index) => (
+                        {allSuggestions.map((suggestion, index) => (
                             <li
-                                key={suggestion.slug}
+                                key={suggestion.slug === 'custom' ? `custom-${suggestion.name}` : suggestion.slug}
                                 onClick={() => handleSelect(suggestion)}
-                                className={`px-4 py-3 cursor-pointer transition-colors ${selectedIndex === index ? 'bg-primary-50 text-primary-700' : 'hover:bg-neutral-50 text-neutral-700'
+                                className={`px-4 py-3 cursor-pointer transition-colors border-b border-neutral-50 last:border-b-0 ${selectedIndex === index ? 'bg-primary-50 text-primary-700' : 'hover:bg-neutral-50 text-neutral-700'
                                     }`}
                             >
-                                <div className="font-medium">{suggestion.name}</div>
+                                <div className="flex items-center justify-between">
+                                    <div className="font-medium">{suggestion.name}</div>
+                                    {suggestion.slug === 'custom' && (
+                                        <span className="text-[10px] uppercase tracking-wider font-bold bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded">
+                                            Custom
+                                        </span>
+                                    )}
+                                </div>
                             </li>
                         ))}
                     </motion.ul>

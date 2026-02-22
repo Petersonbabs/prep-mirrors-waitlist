@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     X,
@@ -66,8 +66,7 @@ export function WaitlistModal({ isOpen, onClose, userId }: WaitlistModalProps) {
         nextStep,
         prevStep,
         isStepValid,
-        submitToDatabase,
-        loading
+        submitToDatabase
     } = useWaitlist(userId)
 
     const [roleInput, setRoleInput] = useState(data.role)

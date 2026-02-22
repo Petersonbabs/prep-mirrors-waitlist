@@ -57,16 +57,11 @@ export const updateWaitlistEntry = async (id: string | number, entry: Partial<Wa
 export const searchJobTitles = async (query: string) => {
     if (!query || query.length < 2) return []
 
-    // Diagnostic log
-    console.log('Searching for:', query)
-
-    const { data, error, status, statusText } = await supabase
+    const { data, error } = await supabase
         .from('job_titles')
         .select('name, slug')
         .ilike('name', `%${query}%`)
         .limit(8)
-
-    console.log('Search Results:', { data, error, status, statusText })
 
     if (error) {
         console.error('Error searching job titles:', error)
@@ -74,4 +69,17 @@ export const searchJobTitles = async (query: string) => {
     }
 
     return data
+}
+
+export const getWaitlistCount = async () => {
+    const { count, error } = await supabase
+        .from('waitlist')
+        .select('*', { count: 'exact', head: true })
+
+    if (error) {
+        console.error('Error fetching waitlist count:', error)
+        return 0
+    }
+
+    return count || 0
 }

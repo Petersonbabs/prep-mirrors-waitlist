@@ -2,15 +2,34 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence, type Variants } from 'framer-motion'
 import { Button } from '../components/ui/Button'
 import { Badge } from '../components/ui/Badge'
-import { addToWaitlist } from '../services/waitlistService'
+import { addToWaitlist, getWaitlistCount } from '../services/waitlistService'
 import { WaitlistModal } from '../components/waitlist/WaitlistModal'
+import { Navbar } from '../components/layout/Navbar'
 import styles from './WaitlistPage.module.css'
+
+import { toast, Toaster } from 'sonner'
 
 export const WaitlistPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [email, setEmail] = useState('')
     const [loading, setLoading] = useState(false)
-    const [userId, setUserId] = useState<string | number | null>(null)
+    const [count, setCount] = useState<number>(0)
+    const [hasJoined, setHasJoined] = useState(false)
+    const [isFocused, setIsFocused] = useState(false)
+    const [userId, setUserId] = useState("")
+    const emailInputRef = React.useRef<HTMLInputElement>(null)
+
+    React.useEffect(() => {
+        const fetchCount = async () => {
+            const actualCount = await getWaitlistCount()
+            setCount(actualCount)
+        }
+        fetchCount()
+
+        // Check persistence
+        const joined = localStorage.getItem('PREP_MIRRORS_JOINED') === 'true'
+        setHasJoined(joined)
+    }, [])
 
     const handleEmailSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -20,12 +39,26 @@ export const WaitlistPage: React.FC = () => {
             if (data?.id) {
                 setUserId(data.id)
                 setIsModalOpen(true)
+                // Persist status
+                localStorage.setItem('PREP_MIRRORS_JOINED', 'true')
+                setHasJoined(true)
             }
         } catch (err) {
             console.error(err)
-            // Error handling could be added here
         } finally {
             setLoading(false)
+        }
+    }
+
+    const handleNavAction = () => {
+        if (hasJoined) {
+            toast.info("We are still cooking for you... Follow us on TikTok!", {
+                icon: '🍳',
+                duration: 5000,
+            })
+        } else {
+            emailInputRef.current?.focus()
+            emailInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
         }
     }
 
@@ -41,10 +74,8 @@ export const WaitlistPage: React.FC = () => {
 
     return (
         <div className={styles.page}>
-            <nav className={styles.nav}>
-                <div className={styles.logo}>🪞 PrepMirrors</div>
-                <Button variant="ghost" size="sm">Log in</Button>
-            </nav>
+            <Toaster position="top-center" richColors />
+            <Navbar onAction={handleNavAction} />
 
             <motion.main
                 className={styles.main}
@@ -64,13 +95,19 @@ export const WaitlistPage: React.FC = () => {
                             Build real confidence before the real interview. Private. Judgment-free.
                         </motion.p>
                         <motion.div className={styles.formWrapper} variants={itemVariants}>
-                            <form className={styles.form} onSubmit={handleEmailSubmit}>
+                            <form
+                                className={`${styles.form} ${isFocused ? styles.formFocused : ''}`}
+                                onSubmit={handleEmailSubmit}
+                            >
                                 <input
+                                    ref={emailInputRef}
                                     type="email"
                                     placeholder="Enter your email address"
                                     className={styles.input}
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
+                                    onFocus={() => setIsFocused(true)}
+                                    onBlur={() => setIsFocused(false)}
                                     required
                                     disabled={loading}
                                 />
@@ -86,7 +123,7 @@ export const WaitlistPage: React.FC = () => {
                     <div className={styles.avatars}>
                         {[1, 2, 3, 4].map(i => <div key={i} className={styles.avatar} style={{ backgroundColor: `hsl(${i * 60}, 60%, 80%)` }} />)}
                     </div>
-                    <div className={styles.proofText} style={{ color: "var(--neutral-800)" }}>Join <span className={styles.proofHighlight}>338</span> people waiting</div>
+                    <div className={styles.proofText} style={{ color: "var(--neutral-800)" }}>Join <span className={styles.proofHighlight}>{count}</span> people waiting</div>
                 </motion.div>
             </motion.main>
 
